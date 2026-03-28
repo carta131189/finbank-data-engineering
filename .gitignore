@@ -205,3 +205,21 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+__pycache__/
+*.pyc
+.env
+*.log
+*.csv
+*.parquet
+*.json
+
+data-generation/output/
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+
+# OS
+.DS_Store
+Thumbs.db
