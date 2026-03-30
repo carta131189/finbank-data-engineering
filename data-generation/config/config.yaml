@@ -11,4 +11,4 @@ data:
   TB_COMISIONES_LOG: 80000
 
 output:
-  path: output
+  path: "output"
