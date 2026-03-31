@@ -1,0 +1,4 @@
+env = "prod"
+
+resource_group_name  = "rg-finbank-prod"
+storage_account_name = "finbankprod12345"

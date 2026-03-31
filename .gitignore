@@ -225,3 +225,7 @@ data-generation/output/
 Thumbs.db
 
 sqlserver-data/
+
+*.tfstate
+*.tfstate.backup
+.terraform/
