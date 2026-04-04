@@ -1,0 +1,63 @@
+{
+    "name": "ds_bronze_productos",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_target",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "source_bronze"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "data_39003fd2-eb0f-43bc-8472-b7abf41e7da5_8f75e5f1-70b9-473a-98d8-9907a604d729.parquet",
+                "folderPath": "TB_PRODUCTOS_CAT/_year=2026/_month=04/_day=03",
+                "fileSystem": "bronze"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": [
+            {
+                "name": "cod_prod",
+                "type": "UTF8"
+            },
+            {
+                "name": "desc_prod",
+                "type": "UTF8"
+            },
+            {
+                "name": "tip_prod",
+                "type": "UTF8"
+            },
+            {
+                "name": "tasa_ea",
+                "type": "DECIMAL",
+                "precision": 8,
+                "scale": 4
+            },
+            {
+                "name": "plazo_max_meses",
+                "type": "INT32"
+            },
+            {
+                "name": "cuota_min",
+                "type": "DECIMAL",
+                "precision": 15,
+                "scale": 2
+            },
+            {
+                "name": "comision_admin",
+                "type": "DECIMAL",
+                "precision": 15,
+                "scale": 2
+            },
+            {
+                "name": "estado_prod",
+                "type": "UTF8"
+            }
+        ]
+    }
+}

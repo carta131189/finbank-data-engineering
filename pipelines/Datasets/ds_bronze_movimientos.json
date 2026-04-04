@@ -1,0 +1,75 @@
+{
+    "name": "ds_bronze_movimientos",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_target",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "source_bronze"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "data_443ea200-fe17-41af-940d-54b6a130d911_9bf1607d-62c8-40d5-88ef-b01b28972179.parquet",
+                "folderPath": "TB_MOV_FINANCIEROS/_year=2026/_month=04/_day=03",
+                "fileSystem": "bronze"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": [
+            {
+                "name": "id_mov",
+                "type": "UTF8"
+            },
+            {
+                "name": "id_cli",
+                "type": "UTF8"
+            },
+            {
+                "name": "cod_prod",
+                "type": "UTF8"
+            },
+            {
+                "name": "num_cuenta",
+                "type": "UTF8"
+            },
+            {
+                "name": "fec_mov",
+                "type": "DATE"
+            },
+            {
+                "name": "hra_mov",
+                "type": "INT96"
+            },
+            {
+                "name": "vr_mov",
+                "type": "DECIMAL",
+                "precision": 18,
+                "scale": 2
+            },
+            {
+                "name": "tip_mov",
+                "type": "UTF8"
+            },
+            {
+                "name": "cod_canal",
+                "type": "UTF8"
+            },
+            {
+                "name": "cod_ciudad",
+                "type": "UTF8"
+            },
+            {
+                "name": "cod_estado_mov",
+                "type": "UTF8"
+            },
+            {
+                "name": "id_dispositivo",
+                "type": "UTF8"
+            }
+        ]
+    }
+}

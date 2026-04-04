@@ -1,0 +1,112 @@
+{
+    "name": "pl_bronze_ingestion",
+    "properties": {
+        "activities": [
+            {
+                "name": "ForEach1",
+                "type": "ForEach",
+                "dependsOn": [],
+                "userProperties": [],
+                "typeProperties": {
+                    "items": {
+                        "value": "@variables('tables')",
+                        "type": "Expression"
+                    },
+                    "activities": [
+                        {
+                            "name": "copy_data_bronze",
+                            "type": "Copy",
+                            "dependsOn": [],
+                            "policy": {
+                                "timeout": "0.12:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "source": {
+                                    "type": "AzureSqlSource",
+                                    "sqlReaderQuery": {
+                                        "value": "@concat('SELECT * FROM dbo.', item())",
+                                        "type": "Expression"
+                                    },
+                                    "queryTimeout": "02:00:00",
+                                    "partitionOption": "None"
+                                },
+                                "sink": {
+                                    "type": "ParquetSink",
+                                    "storeSettings": {
+                                        "type": "AzureBlobFSWriteSettings"
+                                    },
+                                    "formatSettings": {
+                                        "type": "ParquetWriteSettings"
+                                    }
+                                },
+                                "enableStaging": false,
+                                "translator": {
+                                    "type": "TabularTranslator",
+                                    "typeConversion": true,
+                                    "typeConversionSettings": {
+                                        "allowDataTruncation": true,
+                                        "treatBooleanAsNumber": false
+                                    }
+                                }
+                            },
+                            "inputs": [
+                                {
+                                    "referenceName": "ds_sql_source",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "table_name": {
+                                            "value": "@item()",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "referenceName": "ds_bronze_parquet",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "table_name": {
+                                            "value": "@item()",
+                                            "type": "Expression"
+                                        },
+                                        "year": "@formatDateTime(utcnow(),'yyyy')",
+                                        "month": "@formatDateTime(utcnow(),'MM')",
+                                        "day": "@formatDateTime(utcnow(),'dd')"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "variables": {
+            "log_data": {
+                "type": "Array"
+            },
+            "load_data": {
+                "type": "Array"
+            },
+            "tables": {
+                "type": "Array",
+                "defaultValue": [
+                    "TB_CLIENTES_CORE",
+                    "TB_PRODUCTOS_CAT",
+                    "TB_SUCURSALES_RED",
+                    "TB_OBLIGACIONES",
+                    "TB_MOV_FINANCIEROS",
+                    "TB_COMISIONES_LOG"
+                ]
+            }
+        },
+        "annotations": [],
+        "lastPublishTime": "2026-04-03T02:26:22Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

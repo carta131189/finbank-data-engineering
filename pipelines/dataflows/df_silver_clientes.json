@@ -1,0 +1,123 @@
+{
+    "name": "df_silver_clientes",
+    "properties": {
+        "folder": {
+            "name": "df_sirver"
+        },
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_bronze_clientes",
+                        "type": "DatasetReference"
+                    },
+                    "name": "srcbronzeclientes"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_silver_clientes",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sinksilverclientes"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "selectcolumns"
+                },
+                {
+                    "name": "aggregatededup"
+                },
+                {
+                    "name": "filterrequired"
+                },
+                {
+                    "name": "deriveclean"
+                },
+                {
+                    "name": "derivepiihash"
+                },
+                {
+                    "name": "deriveimpute"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          id_cli as string,",
+                "          nomb_cli as string,",
+                "          apell_cli as string,",
+                "          tip_doc as string,",
+                "          num_doc as string,",
+                "          fec_nac as string,",
+                "          fec_alta as string,",
+                "          cod_segmento as string,",
+                "          score_buro as integer,",
+                "          ciudad_res as string,",
+                "          depto_res as string,",
+                "          estado_cli as string,",
+                "          canal_adquis as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     format: 'parquet') ~> srcbronzeclientes",
+                "srcbronzeclientes select(mapColumn(",
+                "          id_cli,",
+                "          nomb_cli,",
+                "          apell_cli,",
+                "          tip_doc,",
+                "          num_doc,",
+                "          fec_nac,",
+                "          fec_alta,",
+                "          cod_segmento,",
+                "          score_buro,",
+                "          ciudad_res,",
+                "          depto_res,",
+                "          estado_cli,",
+                "          canal_adquis",
+                "     ),",
+                "     skipDuplicateMapInputs: false,",
+                "     skipDuplicateMapOutputs: false) ~> selectcolumns",
+                "selectcolumns aggregate(groupBy(id_cli),",
+                "     nomb_cli = first(nomb_cli),",
+                "          apell_cli = first(apell_cli),",
+                "          tip_doc = first(tip_doc),",
+                "          num_doc = first(num_doc),",
+                "          fec_nac = first(fec_nac),",
+                "          fec_alta = first(fec_alta),",
+                "          cod_segmento = first(cod_segmento),",
+                "          score_buro = first(score_buro),",
+                "          ciudad_res = first(ciudad_res),",
+                "          depto_res = first(depto_res),",
+                "          estado_cli = first(estado_cli),",
+                "          canal_adquis = first(canal_adquis)) ~> aggregatededup",
+                "aggregatededup filter(!isNull(id_cli) &&",
+                "    !isNull(tip_doc) &&",
+                "    !isNull(fec_alta) &&",
+                "    !isNull(cod_segmento)) ~> filterrequired",
+                "filterrequired derive(cod_segmento = upper(trim(cod_segmento)),",
+                "          estado_cli = upper(trim(estado_cli)),",
+                "          tip_doc = upper(trim(tip_doc)),",
+                "          score_buro = toInteger(score_buro),",
+                "          fec_nac = toDate(fec_nac),",
+                "          fec_alta = toDate(fec_alta)) ~> deriveclean",
+                "deriveclean derive(nomb_cli = sha2(256, nomb_cli),",
+                "          apell_cli = sha2(256, apell_cli),",
+                "          num_doc = sha2(256, num_doc)) ~> derivepiihash",
+                "derivepiihash derive(score_buro = iif(isNull(score_buro), 0, score_buro),",
+                "          ciudad_res = iif(isNull(ciudad_res), 'DESCONOCIDO', ciudad_res),",
+                "          canal_adquis = iif(isNull(canal_adquis), 'NO_INFORMADO', canal_adquis)) ~> deriveimpute",
+                "deriveimpute sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     writeBehavior: 'overwrite') ~> sinksilverclientes"
+            ]
+        }
+    }
+}

@@ -1,0 +1,71 @@
+{
+    "name": "df_silver_sucursales",
+    "properties": {
+        "folder": {
+            "name": "df_sirver"
+        },
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_bronze_sucursales",
+                        "type": "DatasetReference"
+                    },
+                    "name": "srcbronzsucursales"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_silver_sucursales",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sinksilversucursales"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "selectcolumns"
+                },
+                {
+                    "name": "filterrequired"
+                },
+                {
+                    "name": "deriveclean"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          id_suc as string,",
+                "          nomb_suc as string,",
+                "          ciudad as string,",
+                "          depto as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     format: 'parquet') ~> srcbronzsucursales",
+                "srcbronzsucursales select(mapColumn(",
+                "          id_suc,",
+                "          nomb_suc,",
+                "          ciudad,",
+                "          depto",
+                "     ),",
+                "     skipDuplicateMapInputs: false,",
+                "     skipDuplicateMapOutputs: false) ~> selectcolumns",
+                "selectcolumns filter(!isNull(id_suc) && !isNull(nomb_suc)) ~> filterrequired",
+                "filterrequired derive(nomb_suc = upper(trim(nomb_suc)),",
+                "          ciudad = upper(trim(ciudad)),",
+                "          depto = upper(trim(depto))) ~> deriveclean",
+                "deriveclean sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     writeBehavior: 'overwrite') ~> sinksilversucursales"
+            ]
+        }
+    }
+}

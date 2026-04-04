@@ -212,7 +212,7 @@ __pycache__/
 *.log
 *.csv
 *.parquet
-*.json
+#.json
 
 data-generation/output/
 

@@ -1,0 +1,92 @@
+{
+    "name": "df_silver_comisiones",
+    "properties": {
+        "folder": {
+            "name": "df_sirver"
+        },
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_bronze_comisiones",
+                        "type": "DatasetReference"
+                    },
+                    "name": "srcbronzecomisiones"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_silver_comisiones",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sinksilvercomisiones"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "selectcolumns"
+                },
+                {
+                    "name": "aggregatededup"
+                },
+                {
+                    "name": "filterrequired"
+                },
+                {
+                    "name": "deriveclean"
+                },
+                {
+                    "name": "deriveimpute"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          id_comision as string,",
+                "          id_cli as string,",
+                "          cod_prod as string,",
+                "          fec_cobro as date,",
+                "          vr_comision as decimal(18,2),",
+                "          tip_comision as string,",
+                "          estado_cobro as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     format: 'parquet') ~> srcbronzecomisiones",
+                "srcbronzecomisiones select(mapColumn(",
+                "          id_comision,",
+                "          id_cli,",
+                "          cod_prod,",
+                "          fec_cobro,",
+                "          vr_comision,",
+                "          tip_comision,",
+                "          estado_cobro",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> selectcolumns",
+                "selectcolumns aggregate(groupBy(id_comision),",
+                "     id_cli = first(id_cli),",
+                "          cod_prod = first(cod_prod),",
+                "          fec_cobro = first(fec_cobro),",
+                "          vr_comision = first(vr_comision),",
+                "          tip_comision = first(tip_comision),",
+                "          estado_cobro = first(estado_cobro)) ~> aggregatededup",
+                "aggregatededup filter(!isNull(id_comision) && !isNull(id_cli) && !isNull(cod_prod)) ~> filterrequired",
+                "filterrequired derive(tip_comision = upper(trim(tip_comision)),",
+                "          estado_cobro = upper(trim(estado_cobro)),",
+                "          vr_comision = toDecimal(vr_comision)) ~> deriveclean",
+                "deriveclean derive(vr_comision = iif(isNull(vr_comision), toDecimal(0), vr_comision)\r",
+                ") ~> deriveimpute",
+                "deriveimpute sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     writeBehavior: 'overwrite') ~> sinksilvercomisiones"
+            ]
+        }
+    }
+}

@@ -1,0 +1,74 @@
+{
+    "name": "df_silver_productos",
+    "properties": {
+        "folder": {
+            "name": "df_sirver"
+        },
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_bronze_productos",
+                        "type": "DatasetReference"
+                    },
+                    "name": "srcbronzeproductos"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_silver_productos",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sinksilverproductos"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "selectcolumns"
+                },
+                {
+                    "name": "aggregatededup"
+                },
+                {
+                    "name": "filterrequired"
+                },
+                {
+                    "name": "deriveclean"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          id_prod as string,",
+                "          nomb_prod as string,",
+                "          tipo_prod as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     format: 'parquet') ~> srcbronzeproductos",
+                "srcbronzeproductos select(mapColumn(",
+                "          id_prod,",
+                "          nomb_prod,",
+                "          tipo_prod",
+                "     ),",
+                "     skipDuplicateMapInputs: false,",
+                "     skipDuplicateMapOutputs: false) ~> selectcolumns",
+                "selectcolumns aggregate(groupBy(id_prod),",
+                "     nomb_prod = first(nomb_prod),",
+                "          tipo_prod = first(tipo_prod)) ~> aggregatededup",
+                "aggregatededup filter(!isNull(id_prod) && !isNull(nomb_prod)) ~> filterrequired",
+                "filterrequired derive(nomb_prod = upper(trim(nomb_prod)),",
+                "          tipo_prod = upper(trim(tipo_prod))) ~> deriveclean",
+                "deriveclean sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     writeBehavior: 'overwrite') ~> sinksilverproductos"
+            ]
+        }
+    }
+}

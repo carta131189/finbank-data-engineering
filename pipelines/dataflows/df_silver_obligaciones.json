@@ -1,0 +1,115 @@
+{
+    "name": "df_silver_obligaciones",
+    "properties": {
+        "folder": {
+            "name": "df_sirver"
+        },
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_bronze_obligaciones",
+                        "type": "DatasetReference"
+                    },
+                    "name": "srcbronzeobligaciones"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_silver_obligaciones",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sinksilverobligaciones"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "selectcolumns"
+                },
+                {
+                    "name": "aggregatededup"
+                },
+                {
+                    "name": "filterrequired"
+                },
+                {
+                    "name": "deriveclean"
+                },
+                {
+                    "name": "derivepiihash"
+                },
+                {
+                    "name": "deriveimpute"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          id_oblig as string,",
+                "          id_cli as string,",
+                "          cod_prod as string,",
+                "          vr_aprobado as decimal(18,2),",
+                "          vr_desembolsado as decimal(18,2),",
+                "          sdo_capital as decimal(18,2),",
+                "          vr_cuota as decimal(18,2),",
+                "          fec_desembolso as date,",
+                "          fec_venc as date,",
+                "          dias_mora_act as integer,",
+                "          num_cuotas_pend as integer,",
+                "          calif_riesgo as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     format: 'parquet') ~> srcbronzeobligaciones",
+                "srcbronzeobligaciones select(mapColumn(",
+                "          id_oblig,",
+                "          id_cli,",
+                "          cod_prod,",
+                "          vr_aprobado,",
+                "          vr_desembolsado,",
+                "          sdo_capital,",
+                "          vr_cuota,",
+                "          fec_desembolso,",
+                "          fec_venc,",
+                "          dias_mora_act,",
+                "          num_cuotas_pend,",
+                "          calif_riesgo",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> selectcolumns",
+                "selectcolumns aggregate(groupBy(id_oblig),",
+                "     id_cli = first(id_cli),",
+                "          cod_prod = first(cod_prod),",
+                "          vr_aprobado = first(vr_aprobado),",
+                "          vr_desembolsado = first(vr_desembolsado),",
+                "          sdo_capital = first(sdo_capital),",
+                "          vr_cuota = first(vr_cuota),",
+                "          fec_desembolso = first(fec_desembolso),",
+                "          fec_venc = first(fec_venc),",
+                "          dias_mora_act = first(dias_mora_act),",
+                "          num_cuotas_pend = first(num_cuotas_pend),",
+                "          calif_riesgo = first(calif_riesgo)) ~> aggregatededup",
+                "aggregatededup filter(!isNull(id_oblig) && !isNull(id_cli)) ~> filterrequired",
+                "filterrequired derive(cod_prod = upper(trim(cod_prod)),",
+                "          calif_riesgo = upper(trim(calif_riesgo))) ~> deriveclean",
+                "deriveclean derive(id_cli = sha2(256, id_cli)) ~> derivepiihash",
+                "derivepiihash derive(vr_aprobado = iif(isNull(vr_aprobado), toDecimal(0), vr_aprobado)\r",
+                ",",
+                "          vr_desembolsado = iif(isNull(vr_desembolsado), toDecimal(0), vr_desembolsado),",
+                "          sdo_capital = iif(isNull(sdo_capital), toDecimal(0), sdo_capital),",
+                "          vr_cuota = iif(isNull(vr_cuota), toDecimal(0), vr_cuota),",
+                "          dias_mora_act = iif(isNull(dias_mora_act), 0, dias_mora_act),",
+                "          num_cuotas_pend = iif(isNull(num_cuotas_pend), 0, num_cuotas_pend)) ~> deriveimpute",
+                "deriveimpute sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     writeBehavior: 'overwrite') ~> sinksilverobligaciones"
+            ]
+        }
+    }
+}

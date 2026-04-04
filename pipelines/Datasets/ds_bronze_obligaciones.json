@@ -1,0 +1,81 @@
+{
+    "name": "ds_bronze_obligaciones",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_target",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "source_bronze"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "data_49763b76-cb5d-45ec-8888-b5a76d513ec6_a457833e-9737-4a70-a04e-6927ccf0d3dc.parquet",
+                "folderPath": "TB_OBLIGACIONES/_year=2026/_month=04/_day=03",
+                "fileSystem": "bronze"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": [
+            {
+                "name": "id_oblig",
+                "type": "UTF8"
+            },
+            {
+                "name": "id_cli",
+                "type": "UTF8"
+            },
+            {
+                "name": "cod_prod",
+                "type": "UTF8"
+            },
+            {
+                "name": "vr_aprobado",
+                "type": "DECIMAL",
+                "precision": 18,
+                "scale": 2
+            },
+            {
+                "name": "vr_desembolsado",
+                "type": "DECIMAL",
+                "precision": 18,
+                "scale": 2
+            },
+            {
+                "name": "sdo_capital",
+                "type": "DECIMAL",
+                "precision": 18,
+                "scale": 2
+            },
+            {
+                "name": "vr_cuota",
+                "type": "DECIMAL",
+                "precision": 18,
+                "scale": 2
+            },
+            {
+                "name": "fec_desembolso",
+                "type": "DATE"
+            },
+            {
+                "name": "fec_venc",
+                "type": "DATE"
+            },
+            {
+                "name": "dias_mora_act",
+                "type": "INT32"
+            },
+            {
+                "name": "num_cuotas_pend",
+                "type": "INT32"
+            },
+            {
+                "name": "calif_riesgo",
+                "type": "UTF8"
+            }
+        ]
+    }
+}

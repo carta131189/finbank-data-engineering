@@ -1,0 +1,61 @@
+{
+    "name": "ds_bronze_sucursales",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_target",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "source_bronze"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "data_249d0f17-8068-45c5-9715-183804da7c53_307c2775-77d9-4379-8403-faa31e32fcde.parquet",
+                "folderPath": "TB_SUCURSALES_RED/_year=2026/_month=04/_day=03",
+                "fileSystem": "bronze"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": [
+            {
+                "name": "cod_suc",
+                "type": "UTF8"
+            },
+            {
+                "name": "nom_suc",
+                "type": "UTF8"
+            },
+            {
+                "name": "tip_punto",
+                "type": "UTF8"
+            },
+            {
+                "name": "ciudad",
+                "type": "UTF8"
+            },
+            {
+                "name": "depto",
+                "type": "UTF8"
+            },
+            {
+                "name": "latitud",
+                "type": "DECIMAL",
+                "precision": 10,
+                "scale": 6
+            },
+            {
+                "name": "longitud",
+                "type": "DECIMAL",
+                "precision": 10,
+                "scale": 6
+            },
+            {
+                "name": "activo",
+                "type": "INT32"
+            }
+        ]
+    }
+}

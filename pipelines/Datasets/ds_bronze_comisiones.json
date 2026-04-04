@@ -1,0 +1,55 @@
+{
+    "name": "ds_bronze_comisiones",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_target",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "source_bronze"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "data_3689b186-3fa2-446e-990a-7bcfa8835ced_6dd19b9e-b476-4585-b8f1-2cd583f0a952.parquet",
+                "folderPath": "TB_COMISIONES_LOG/_year=2026/_month=04/_day=03",
+                "fileSystem": "bronze"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": [
+            {
+                "name": "id_comision",
+                "type": "UTF8"
+            },
+            {
+                "name": "id_cli",
+                "type": "UTF8"
+            },
+            {
+                "name": "cod_prod",
+                "type": "UTF8"
+            },
+            {
+                "name": "fec_cobro",
+                "type": "DATE"
+            },
+            {
+                "name": "vr_comision",
+                "type": "DECIMAL",
+                "precision": 18,
+                "scale": 2
+            },
+            {
+                "name": "tip_comision",
+                "type": "UTF8"
+            },
+            {
+                "name": "estado_cobro",
+                "type": "UTF8"
+            }
+        ]
+    }
+}

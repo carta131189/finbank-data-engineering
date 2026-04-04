@@ -1,0 +1,23 @@
+{
+    "name": "ds_silver_clientes",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_target",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "sink_silver"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "folderPath": "TB_CLIENTES_CORE",
+                "fileSystem": "silver"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": []
+    }
+}

@@ -1,0 +1,77 @@
+{
+    "name": "ds_bronze_clientes",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_target",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "source_bronze"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "data_47556219-8855-412e-91d1-9900ab459038_155fef52-f4dd-4aa8-8ef7-c075955d1da2.parquet",
+                "folderPath": "TB_CLIENTES_CORE/_year=2026/_month=04/_day=03",
+                "fileSystem": "bronze"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": [
+            {
+                "name": "id_cli",
+                "type": "UTF8"
+            },
+            {
+                "name": "nomb_cli",
+                "type": "UTF8"
+            },
+            {
+                "name": "apell_cli",
+                "type": "UTF8"
+            },
+            {
+                "name": "tip_doc",
+                "type": "UTF8"
+            },
+            {
+                "name": "num_doc",
+                "type": "UTF8"
+            },
+            {
+                "name": "fec_nac",
+                "type": "DATE"
+            },
+            {
+                "name": "fec_alta",
+                "type": "DATE"
+            },
+            {
+                "name": "cod_segmento",
+                "type": "UTF8"
+            },
+            {
+                "name": "score_buro",
+                "type": "INT32"
+            },
+            {
+                "name": "ciudad_res",
+                "type": "UTF8"
+            },
+            {
+                "name": "depto_res",
+                "type": "UTF8"
+            },
+            {
+                "name": "estado_cli",
+                "type": "UTF8"
+            },
+            {
+                "name": "canal_adquis",
+                "type": "UTF8"
+            }
+        ]
+    }
+}

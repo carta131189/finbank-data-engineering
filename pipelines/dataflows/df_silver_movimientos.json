@@ -1,0 +1,110 @@
+{
+    "name": "df_silver_movimientos",
+    "properties": {
+        "folder": {
+            "name": "df_sirver"
+        },
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_bronze_movimientos",
+                        "type": "DatasetReference"
+                    },
+                    "name": "srcbronzemovimientos"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_silver_movimientos",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sinksilvermovimientos"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "selectcolumns"
+                },
+                {
+                    "name": "aggregatededup"
+                },
+                {
+                    "name": "filterrequired"
+                },
+                {
+                    "name": "deriveclean"
+                },
+                {
+                    "name": "deriveimpute"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          id_mov as string,",
+                "          id_cli as string,",
+                "          cod_prod as string,",
+                "          num_cuenta as string,",
+                "          fec_mov as date,",
+                "          hra_mov as timestamp,",
+                "          vr_mov as decimal(18,2),",
+                "          tip_mov as string,",
+                "          cod_canal as string,",
+                "          cod_ciudad as string,",
+                "          cod_estado_mov as string,",
+                "          id_dispositivo as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     format: 'parquet') ~> srcbronzemovimientos",
+                "srcbronzemovimientos select(mapColumn(",
+                "          id_mov,",
+                "          id_cli,",
+                "          cod_prod,",
+                "          num_cuenta,",
+                "          fec_mov,",
+                "          hra_mov,",
+                "          vr_mov,",
+                "          tip_mov,",
+                "          cod_canal,",
+                "          cod_ciudad,",
+                "          cod_estado_mov,",
+                "          id_dispositivo",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> selectcolumns",
+                "selectcolumns aggregate(groupBy(id_mov),",
+                "     id_cli = first(id_cli),",
+                "          cod_prod = first(cod_prod),",
+                "          num_cuenta = first(num_cuenta),",
+                "          fec_mov = first(fec_mov),",
+                "          hra_mov = first(hra_mov),",
+                "          vr_mov = first(vr_mov),",
+                "          tip_mov = first(tip_mov),",
+                "          cod_canal = first(cod_canal),",
+                "          cod_ciudad = first(cod_ciudad),",
+                "          cod_estado_mov = first(cod_estado_mov),",
+                "          id_dispositivo = first(id_dispositivo)) ~> aggregatededup",
+                "aggregatededup filter(!isNull(id_mov) && !isNull(id_cli) && !isNull(cod_prod)) ~> filterrequired",
+                "filterrequired derive(tip_mov = upper(trim(tip_mov)),",
+                "          cod_canal = upper(trim(cod_canal)),",
+                "          cod_ciudad = upper(trim(cod_ciudad)),",
+                "          cod_estado_mov = upper(trim(cod_estado_mov)),",
+                "          vr_mov = toDecimal(vr_mov)) ~> deriveclean",
+                "deriveclean derive(vr_mov = iif(isNull(vr_mov), toDecimal(0), vr_mov),",
+                "          num_cuenta = iif(isNull(num_cuenta), 'DESCONOCIDO', num_cuenta),",
+                "          id_dispositivo = iif(isNull(id_dispositivo), 'NO_INFORMADO', id_dispositivo)) ~> deriveimpute",
+                "deriveimpute sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     writeBehavior: 'overwrite') ~> sinksilvermovimientos"
+            ]
+        }
+    }
+}
