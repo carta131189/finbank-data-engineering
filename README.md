@@ -17,10 +17,13 @@ Diseñar e implementar un pipeline de datos que permita:
 
 ---
 
-## Arquitectura (Implementación Actual)
+## Arquitectura del Pipeline
+
 
 ```
-Generación de Datos → CSV / Parquet → Validación → Simulación de Carga
+* Generación de Datos → CSV / Parquet → Validación → Simulación de Carga
+* **Bronze**: Ingesta de datos crudos desde SQL a ADLS en formato Parquet
+* **Silver**: Transformaciones y limpieza mediante Data Flows en ADF
 ```
 
 * Generación de datos sintéticos usando Python
@@ -100,22 +103,44 @@ python load_data.py
 ```bash
 python validate_data.py
 ```
+---
+
+## Pipelines y Datasets
+
+### Pipelines
+
+* **pl_bronze_ingestion** → Copia datos de SQL a ADLS (Bronze)
+* **pl_silver_all_dataflows_parallel** → Ejecuta Data Flows de limpieza y transformación (Silver)
+
+### Datasets
+
+* **ds_sql_source** → Origen en Azure SQL
+* **ds_bronze_parquet** → Datos crudos en Bronze
+* **ds_silver_parquet** → Datos transformados en Silver
+
+---
+
+## Ejecución de Pipelines
+
+1. Publicar pipelines en Azure Data Factory
+2. Ejecutar pipeline Bronze: `pl_bronze_ingestion`
+3. Ejecutar pipeline Silver: `pl_silver_all_dataflows_parallel`
 
 ---
 
 ## Evidencia
 
-* Logs de carga:
-
-```
-/docs/evidencia_carga.png
-```
-
-* Diagrama ER:
-
-```
-/docs/er_diagram.png
-```
+* Pipelines exportados: `/pipelines/pl_bronze_ingestion.json`, `/pipelines/pl_silver_all_dataflows_parallel.json`
+* Data Flows: `/dataflows/df_silver_clientes.json`, `/dataflows/df_silver_comisiones.json`, `/dataflows/df_silver_cmovimientos.json`, `/dataflows/df_silver_obligaciones.json`, `/dataflows/df_silver_productos.json`, `/dataflows/df_silver_sucursales.json`.
+* Datasets: `/Datasets/ds_silver_clientes.json`, `/Datasets/ds_silver_comisiones.json`, `/Datasets/ds_silver_movimientos.json`, `/Datasets/ds_silver_obligaciones.json`, `/Datasets/ds_silver_productos.json`, `/Datasets/ds_silver_sucursales.json`,`/Datasets/ds_bronze_clientes.json`, `/Datasets/ds_bronze_comisiones.json`, `/Datasets/ds_bronze_movimientos.json`, `/Datasets/ds_bronze_obligaciones.json`, `/Datasets/ds_bronze_productos.json`, `/Datasets/ds_bronze_sucursales.json`.
+* Logs de carga: `/docs/evidencia_carga.png`
+* Diagrama ER: `/docs/ER_FinBank.png`
+* Carga bronze: `/docs/Carga_datos_adf_pipeline.png`
+* Carga Silver: `/docs/Carga_silver.png`
+* Pipeline bronze: `/docs/evidencia_adf_pipeline.png`
+* Carpetas bronze: `/docs/evidencia_storage.png`
+* Carga datos: `/docs/Validacion de datos.png`
+* Terraform: `/docs/evidencia_terraform_plan.png`
 
 ---
 
@@ -124,12 +149,9 @@ python validate_data.py
 * Python (Pandas, NumPy)
 * YAML (configuración)
 * Git (control de versiones)
-
----
-
-## Notas
-
-Debido a limitaciones en el entorno (Azure Free Tier), la solución se implementó de forma local, incluyendo una simulación del proceso de carga en lugar de una integración real con servicios en la nube.
+* Azure Data Factory (pipelines y dataflows)
+* Azure Data Lake Storage Gen2
+* Git (control de versiones)
 
 ---
 
@@ -145,10 +167,10 @@ Debido a limitaciones en el entorno (Azure Free Tier), la solución se implement
 
 ## Próximas Mejoras
 
-* Integración con Azure Data Factory
-* Despliegue en Azure Data Lake / SQL Server
-* Implementación de arquitectura Medallion (Bronze, Silver, Gold)
-* Orquestación de pipelines
+* Orquestación completa de pipelines con triggers en ADF
+* Monitoreo y alertas de fallos de carga
+* Integración con Power BI o dashboards analíticos
+* Generación de reportes automáticos desde capa Gold
 
 ---
 
